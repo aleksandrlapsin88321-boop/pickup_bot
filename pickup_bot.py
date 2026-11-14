@@ -233,8 +233,8 @@ async def cb_q(cb: types.CallbackQuery, state: FSMContext):
         await cb.message.edit_text(
             "Понял, принял. Всё учту.\n\n" + summary +
             "\n\nИ в конце банальнейший вопрос любого пикапера, но я не телепат, "
-            "и без него никогда не узнаю ответа — какие цветы ты любишь?\n\n"
-            "(можно написать или нажать «Отменить всё»)",
+            "и без него никогда не узнаю ответа — какие цветы ты любишь? "
+            "Напиши свой вариант:",
             reply_markup=flowers_kb(),
         )
         await bot.send_message(OWNER_ID, f"📝 {cb.from_user.full_name}:\n{summary}")
@@ -258,8 +258,7 @@ async def cb_pick(cb: types.CallbackQuery, state: FSMContext):
     await state.set_state(S.flowers)
     await cb.message.edit_text(
         f"Выбрано: {names[n]}.\n\nИ в конце банальнейший вопрос любого пикапера, "
-        "но я не телепат — какие цветы ты любишь?\n\n"
-        "(можно написать или нажать «Отменить всё»)",
+        "но я не телепат — какие цветы ты любишь? Напиши свой вариант:",
         reply_markup=flowers_kb(),
     )
     await cb.answer()
@@ -272,8 +271,7 @@ async def on_custom_format(message: types.Message, state: FSMContext):
     await state.set_state(S.flowers)
     await message.answer(
         f"Записал: «{message.text}».\n\nИ в конце банальнейший вопрос любого пикапера, "
-        "но я не телепат — какие цветы ты любишь?\n\n"
-        "(можно написать или нажать «Отменить всё»)",
+        "но я не телепат — какие цветы ты любишь? Напиши свой вариант:",
         reply_markup=flowers_kb(),
     )
     await bot.send_message(OWNER_ID, f"✏️ {message.from_user.full_name}: {message.text}")
