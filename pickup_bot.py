@@ -91,8 +91,8 @@ def question_kb(idx):
 
 def formats_kb():
     return InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="1. Спокойное — прогулка с собакой", callback_data="pick:1")],
-        [InlineKeyboardButton(text="2. Драйвовое — что-нибудь придумаем", callback_data="pick:2")],
+        [InlineKeyboardButton(text="1. Спокойное", callback_data="pick:1")],
+        [InlineKeyboardButton(text="2. Драйвовое — ок, включим фантазию", callback_data="pick:2")],
         [InlineKeyboardButton(text="3. Мини-путешествие — что-нибудь придумаем", callback_data="pick:3")],
         [InlineKeyboardButton(text="Отменить всё", callback_data="cancel")],
     ])
@@ -197,7 +197,7 @@ async def cb_fmt_list(cb: types.CallbackQuery):
     text = (
         "1. Спокойное — идём гулять в компании моего верного доброго друга (собаки), "
         "на удобной для тебя локации.\n\n"
-        "2. Драйвовое — что-нибудь придумаем.\n\n"
+        "2. Драйвовое — ок, включим фантазию.\n\n"
         "3. Мини-путешествие — время ограничено, так что радиус небольшой, "
         "но что-нибудь придумаем. Правда, придётся сесть в авто к малознакомому "
         "человеку ;)"
@@ -271,9 +271,9 @@ async def cb_q(cb: types.CallbackQuery, state: FSMContext):
 async def cb_pick(cb: types.CallbackQuery, state: FSMContext):
     n = cb.data.split(":")[1]
     names = {
-        "1": "Спокойное (прогулка с собакой)",
-        "2": "Драйвовое (что-нибудь придумаем)",
-        "3": "Мини-путешествие (что-нибудь придумаем)",
+        "1": "Спокойное",
+        "2": "Драйвовое",
+        "3": "Мини-путешествие",
     }
     await state.set_state(S.flowers)
     await cb.message.edit_text(
