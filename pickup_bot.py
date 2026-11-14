@@ -92,8 +92,8 @@ def question_kb(idx):
 def formats_kb():
     return InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="1. Спокойное — прогулка с собакой", callback_data="pick:1")],
-        [InlineKeyboardButton(text="2. Драйвовое — трек, резина, гонки", callback_data="pick:2")],
-        [InlineKeyboardButton(text="3. Путешествие — куда скажешь", callback_data="pick:3")],
+        [InlineKeyboardButton(text="2. Драйвовое — что-нибудь придумаем", callback_data="pick:2")],
+        [InlineKeyboardButton(text="3. Мини-путешествие — что-нибудь придумаем", callback_data="pick:3")],
         [InlineKeyboardButton(text="Отменить всё", callback_data="cancel")],
     ])
 
@@ -153,8 +153,8 @@ async def cb_date(cb: types.CallbackQuery, state: FSMContext):
     iso = cb.data.split(":", 1)[1]
     await state.update_data(chosen_date=iso)
     await cb.message.edit_text(
-        "Раз уж всё идёт по твоим правилам, позволь выбрать хотя бы формат? "
-        "Обещаю всё лайтово, без неловких ситуаций и дурацких сюрпризов.",
+        "Теперь самое приятное — формат. Я предложу, а ты выберешь. "
+        "Всё лайтово, без сюрпризов",
         reply_markup=format_kb(),
     )
     await cb.answer()
@@ -177,9 +177,10 @@ async def cb_fmt_list(cb: types.CallbackQuery):
     text = (
         "1. Спокойное — идём гулять в компании моего верного доброго друга (собаки), "
         "на удобной для тебя локации.\n\n"
-        "2. Драйвовое — едем на трек, жжём резину, гоняем.\n\n"
-        "3. Путешествие — время ограничено, так что радиус небольшой, но доедем "
-        "куда скажешь. Правда, придётся сесть в авто к малознакомому человеку 😄"
+        "2. Драйвовое — что-нибудь придумаем.\n\n"
+        "3. Мини-путешествие — время ограничено, так что радиус небольшой, "
+        "но что-нибудь придумаем. Правда, придётся сесть в авто к малознакомому "
+        "человеку ;)"
     )
     await cb.message.edit_text(text, reply_markup=formats_kb())
     await cb.answer()
@@ -190,7 +191,7 @@ async def cb_fmt_own(cb: types.CallbackQuery, state: FSMContext):
     await state.set_state(S.custom_format)
     await cb.message.edit_text(
         "Без проблем, любое желание. Напиши свой вариант:",
-        reply_markup=flowers_kb(),  # там только «Отменить всё»
+        reply_markup=flowers_kb(),
     )
     await cb.answer()
 
@@ -207,7 +208,8 @@ async def cb_q(cb: types.CallbackQuery, state: FSMContext):
         if new_idx < 0:
             await state.clear()
             await cb.message.edit_text(
-                "Раз уж всё идёт по твоим правилам, позволь выбрать хотя бы формат?",
+                "Теперь самое приятное — формат. Я предложу, а ты выберешь. "
+                "Всё лайтово, без сюрпризов",
                 reply_markup=format_kb(),
             )
         else:
@@ -248,7 +250,11 @@ async def cb_q(cb: types.CallbackQuery, state: FSMContext):
 @dp.callback_query(F.data.startswith("pick:"))
 async def cb_pick(cb: types.CallbackQuery, state: FSMContext):
     n = cb.data.split(":")[1]
-    names = {"1": "Спокойное (прогулка с собакой)", "2": "Драйвовое (трек)", "3": "Путешествие"}
+    names = {
+        "1": "Спокойное (прогулка с собакой)",
+        "2": "Драйвовое (что-нибудь придумаем)",
+        "3": "Мини-путешествие (что-нибудь придумаем)",
+    }
     await state.set_state(S.flowers)
     await cb.message.edit_text(
         f"Выбрано: {names[n]}.\n\nИ в конце банальнейший вопрос любого пикапера, "
