@@ -104,6 +104,12 @@ def flowers_kb():
     ])
 
 
+def restart_kb():
+    return InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="Начать заново", callback_data="restart")]
+    ])
+
+
 # ============== Хэндлеры ==============
 
 @dp.message(CommandStart())
@@ -114,6 +120,17 @@ async def cmd_start(message: types.Message, state: FSMContext):
         "последнюю кнопку, я не обижусь. Но в ином случае — я буду рад.",
         reply_markup=start_kb(),
     )
+
+
+@dp.callback_query(F.data == "restart")
+async def cb_restart(cb: types.CallbackQuery, state: FSMContext):
+    await state.clear()
+    await cb.message.edit_text(
+        "Привет! Хочу пригласить тебя погулять. Если не хочется — можешь нажать "
+        "последнюю кнопку, я не обижусь. Но в ином случае — я буду рад.",
+        reply_markup=start_kb(),
+    )
+    await cb.answer()
 
 
 @dp.callback_query(F.data == "start:yes")
@@ -128,7 +145,10 @@ async def cb_yes(cb: types.CallbackQuery):
 
 @dp.callback_query(F.data == "start:no")
 async def cb_no(cb: types.CallbackQuery):
-    await cb.message.edit_text("Понимаю, уважаю. Спасибо, что ответила 🙂")
+    await cb.message.edit_text(
+        "Понимаю, уважаю. Спасибо, что ответила 🙂",
+        reply_markup=None,
+    )
     await cb.answer()
     await bot.send_message(OWNER_ID, f"❌ {cb.from_user.full_name}: Нет, не сейчас")
 
@@ -295,7 +315,7 @@ async def cb_cancel(cb: types.CallbackQuery, state: FSMContext):
     await state.clear()
     await cb.message.edit_text(
         "Ок, отменил. Если что — я тут 🙂",
-        reply_markup=None,
+        reply_markup=restart_kb(),
     )
     await cb.answer()
     await bot.send_message(OWNER_ID, f"🚫 {cb.from_user.full_name} отменила")
