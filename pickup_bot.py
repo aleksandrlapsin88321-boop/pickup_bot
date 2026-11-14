@@ -295,7 +295,10 @@ async def on_flowers(message: types.Message, state: FSMContext):
 @dp.callback_query(F.data == "cancel")
 async def cb_cancel(cb: types.CallbackQuery, state: FSMContext):
     await state.clear()
-    await cb.message.edit_text("Ок, отменил. Если что — я тут 🙂")
+    await cb.message.edit_text(
+        "Ок, отменил. Если что — я тут 🙂",
+        reply_markup=None,
+    )
     await cb.answer()
     await bot.send_message(OWNER_ID, f"🚫 {cb.from_user.full_name} отменила")
 
