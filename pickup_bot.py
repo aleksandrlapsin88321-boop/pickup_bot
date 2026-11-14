@@ -147,7 +147,7 @@ async def cb_yes(cb: types.CallbackQuery):
 async def cb_no(cb: types.CallbackQuery):
     await cb.message.edit_text(
         "Понимаю, уважаю. Спасибо, что ответила 🙂",
-        reply_markup=None,
+        reply_markup=restart_kb(),
     )
     await cb.answer()
     await bot.send_message(OWNER_ID, f"❌ {cb.from_user.full_name}: Нет, не сейчас")
@@ -319,6 +319,14 @@ async def cb_cancel(cb: types.CallbackQuery, state: FSMContext):
     )
     await cb.answer()
     await bot.send_message(OWNER_ID, f"🚫 {cb.from_user.full_name} отменила")
+
+
+@dp.message(F.text)
+async def fallback_text(message: types.Message):
+    await message.answer(
+        "Я тут, просто жду, когда ты нажмёшь кнопку 🙂 "
+        "Если что — /start запустит всё сначала."
+    )
 
 
 async def main():
