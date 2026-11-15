@@ -110,6 +110,23 @@ def restart_kb():
     ])
 
 
+def build_summary(data: dict, flowers: str = "—") -> str:
+    date_iso = data.get("chosen_date", "не выбрана")
+    fmt = data.get("chosen_format", "не выбран")
+    answers = data.get("answers", {})
+    questions_lines = "\n".join(
+        f"• {QUESTIONS[i].split('?')[0]}? — {answers.get(str(i), '—')}"
+        for i in range(len(QUESTIONS))
+    )
+    return (
+        "Итог:\n"
+        f"📅 Дата: {date_iso}\n"
+        f"🎯 Формат: {fmt}\n"
+        f"📝 Ответы:\n{questions_lines}\n"
+        f"💐 Цветы: {flowers}"
+    )
+
+
 # ============== Хэндлеры ==============
 
 @dp.message(CommandStart())
@@ -140,7 +157,6 @@ async def cb_yes(cb: types.CallbackQuery):
         reply_markup=years_kb(),
     )
     await cb.answer()
-    await bot.send_message(OWNER_ID, f"✅ {cb.from_user.full_name}: Да")
 
 
 @dp.callback_query(F.data == "start:no")
@@ -178,12 +194,11 @@ async def cb_date(cb: types.CallbackQuery, state: FSMContext):
         reply_markup=format_kb(),
     )
     await cb.answer()
-    await bot.send_message(OWNER_ID, f"📅 {cb.from_user.full_name} выбрала дату: {iso}")
 
 
 @dp.callback_query(F.data == "fmt:trust")
 async def cb_fmt_trust(cb: types.CallbackQuery, state: FSMContext):
-    await state.update_data(answers={}, current=0)
+    await state.update_data(answers={}, current=0, chosen_format="Доверюсь тебе")
     await state.set_state(S.questions)
     await cb.message.edit_text(
         f"Супер! Тогда три коротких вопроса.\n\nВопрос 1/3: {QUESTIONS[0]}",
@@ -240,19 +255,14 @@ async def cb_q(cb: types.CallbackQuery, state: FSMContext):
     next_idx = idx + 1
 
     if next_idx >= len(QUESTIONS):
+        await state.update_data(answers=answers)
         await state.set_state(S.flowers)
-        summary = "\n".join(
-            f"• {QUESTIONS[i].split('?')[0]}? — {answers[str(i)]}"
-            for i in range(len(QUESTIONS))
-        )
         await cb.message.edit_text(
-            "Понял, принял. Всё учту.\n\n" + summary +
-            "\n\nИ в конце банальнейший вопрос любого пикапера, но я не телепат, "
-            "и без него никогда не узнаю ответа — какие цветы ты любишь? "
-            "Напиши свой вариант:",
+            "Понял, принял. Всё учту.\n\n"
+            "И в конце банальнейший вопрос любого пикапера, но я не телепат — "
+            "какие цветы ты любишь? Напиши свой вариант:",
             reply_markup=flowers_kb(),
         )
-        await bot.send_message(OWNER_ID, f"📝 {cb.from_user.full_name}:\n{summary}")
     else:
         await state.update_data(current=next_idx, answers=answers)
         await cb.message.edit_text(
@@ -270,6 +280,7 @@ async def cb_pick(cb: types.CallbackQuery, state: FSMContext):
         "2": "Погуляем в компании моего верного друга (собаки)",
         "3": "Поедем погуляем в другом городе",
     }
+    await state.update_data(chosen_format=names[n])
     await state.set_state(S.flowers)
     await cb.message.edit_text(
         f"Выбрано: {names[n]}.\n\nИ в конце банальнейший вопрос любого пикапера, "
@@ -277,19 +288,17 @@ async def cb_pick(cb: types.CallbackQuery, state: FSMContext):
         reply_markup=flowers_kb(),
     )
     await cb.answer()
-    await bot.send_message(OWNER_ID, f"🎯 {cb.from_user.full_name}: {names[n]}")
 
 
 @dp.message(S.custom_format, F.text)
 async def on_custom_format(message: types.Message, state: FSMContext):
-    await state.update_data(custom_format=message.text)
+    await state.update_data(chosen_format=f"Свой вариант: «{message.text}»")
     await state.set_state(S.flowers)
     await message.answer(
         f"Записал: «{message.text}».\n\nИ в конце банальнейший вопрос любого пикапера, "
         "но я не телепат — какие цветы ты любишь? Напиши свой вариант:",
         reply_markup=flowers_kb(),
     )
-    await bot.send_message(OWNER_ID, f"✏️ {message.from_user.full_name}: {message.text}")
 
 
 @dp.message(S.flowers, F.text)
@@ -297,11 +306,10 @@ async def on_flowers(message: types.Message, state: FSMContext):
     data = await state.get_data()
     await state.clear()
     await message.answer("О, да. Жду не дождусь 🙂")
+    summary = build_summary(data, flowers=message.text)
     await bot.send_message(
         OWNER_ID,
-        f"💐 {message.from_user.full_name} — цветы: {message.text}\n"
-        f"📅 Дата: {data.get('chosen_date', 'не выбрана')}\n"
-        f"📝 Ответы: {data.get('answers', '—')}",
+        f"💐 {message.from_user.full_name} прошла сценарий.\n\n{summary}",
     )
 
 
