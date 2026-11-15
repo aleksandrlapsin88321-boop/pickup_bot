@@ -133,7 +133,7 @@ def build_summary(data: dict, flowers: str = "—") -> str:
 async def cmd_start(message: types.Message, state: FSMContext):
     await state.clear()
     await message.answer(
-        "Привет! Хочу пригласить тебя погулять. Если не хочется — можешь нажать "
+        "Полина, хочу пригласить тебя погулять. Если не хочется — можешь нажать "
         "последнюю кнопку, я не обижусь. Но в ином случае — я буду рад.",
         reply_markup=start_kb(),
     )
@@ -143,7 +143,7 @@ async def cmd_start(message: types.Message, state: FSMContext):
 async def cb_restart(cb: types.CallbackQuery, state: FSMContext):
     await state.clear()
     await cb.message.edit_text(
-        "Привет! Хочу пригласить тебя погулять. Если не хочется — можешь нажать "
+        "Полина, хочу пригласить тебя погулять. Если не хочется — можешь нажать "
         "последнюю кнопку, я не обижусь. Но в ином случае — я буду рад.",
         reply_markup=start_kb(),
     )
